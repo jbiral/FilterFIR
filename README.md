@@ -7,7 +7,8 @@ This small library implements a FIR filter by providing the array of coefficient
 
 ### Example ###
 Here's a simple example that shows how to use the library:
-...c
+
+```cpp
 int N; // The number of taps of the filter
 const int16_t coeff[N] = { 1, 0, 0, 0 } // The coefficients of the filter
 
@@ -22,6 +23,6 @@ for(int i=0; i<inputSize; i++)
 {
 	inputFiltered[i] = fir.process(input[i]);
 }
-...
+```
 
 **Be careful** that the coefficients of the filter and the input vector must be coded on 16 bits (signed) to avoid an overflow in the multiplication process.
