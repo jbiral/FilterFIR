@@ -4,7 +4,7 @@
 #include <cstdint>
 
 template<int N>
-class FIR {
+class FilterFIR {
 
 private:
 	int16_t values[N];	
