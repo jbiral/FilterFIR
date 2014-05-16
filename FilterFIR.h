@@ -3,30 +3,34 @@
 
 #include <cstdint>
 
-template<int filterTaps>
+template<int N>
 class FIR {
 
 private:
-	int16_t values[filterTaps];	
-	int16_t coef[filterTaps];
-	float gain; // set to 1 and input unity to see what this needs to be	
-	int k; // k stores the index of the current array read to create a circular memory through the array
+	int16_t values[N];	
+	int16_t coef[N];
+	float gain;	
+	int k;
 
 public:
 	FIR(){
-		k = 0; //initialize so that we start to read at index 0
-		for (int i=0; i<filterTaps; i++) {      
-			values[i] = 0; // to have a nice start up, fill the array with 0's
+		k = 0;
+		for (int i=0; i<N; i++)
+                {      
+			values[i] = 0;
+                        coef[i] = 0;
 		}
-		//TODO calculate default gain?
-		//TODO calculate default coefs?
+		// Default coef (allpass filter)
+                coef[0] = 1;
+                gain = 1.0;
 	}
 	
-	FIR(int newGain, float *newCoefs) {
-		k = 0; //initialize so that we start to read at index 0
+	FIR(float *newCoefs) {
+		k = 0;
 		setGain(newGain);
-		for (int i=0; i<filterTaps; i++) {      
-			values[i] = 0; // to have a nice start up, fill the array with 0's
+		for (int i=0; i<N; i++)
+                {      
+			values[i] = 0;
 		}
 		setCoefficients(newCoefs);
 	}
@@ -36,34 +40,43 @@ public:
 	}
 	
 	void setCoefficients(const int16_t *newCoefs) {
-		for (int i=0; i<filterTaps; i++) {      
+		for (int i=0; i<N; i++)
+                {      
 			coef[i] = newCoefs[i];
 		}
+
+                // Calculate the default gain
+                int32_t output = 0;
+                for (int i=0; i<N; i++)
+                {
+			output += (int32_t) coef[i] * (int32_t) 1;
+		}
+                gain = (float)output / (float)(pow(2,15));                
 	}
 	
-	void setCoefficient(int idx, int16_t newCoef) { 
-		coef[idx] = newCoef; 
-	}
-	
-	int16_t process(int16_t in) {
+	int16_t process(int16_t input) {
                 // Input and coefficients are coded on 16 bits. To avoid overflow in the multiplication process, the output must be coded on 32 bits.
-		int32_t out = 0;
+		int32_t output = 0;
                 
                 // Store the input of the routine (contents of the 'in' variable) in the array at the current pointer position
-		values[k] = in;
+		values[k] = input;
 
-		for (int i=0; i<filterTaps; i++)
+		for (int i=0; i<N; i++)
                 {
-			out += (int32_t) coef[i] * (int32_t) values[(i + k) % filterTaps];
+			output += (int32_t) coef[i] * (int32_t) values[(i + k) & (N - 1)];
 		}
                 
                 // Shift by 15 bits to the right (16 bits signed) to rescale the output
-		out = out >> 15;
-                out = (int16_t) (gain * (float) out);
+		// output = output >> 15;
+                // More precise (but slower)
+                output = (int16_t) (gain * (float) output);
+                
+                // Compute the modulo of a power of two to increase the speed
+                // If N is not a power of two, uncomment next line
+                // k = (k+1) % N ;
+		k = (k+1) & (N - 1) ;
 
-		k = (k+1) % filterTaps;            // k is increased and wraps around the filterTaps, so next time we will overwrite the oldest saved sample in the array
-
-		return ((int16_t) out);                              // we send the output value back to whoever called the routine
+		return ((int16_t) output);
 	}
 };
 
