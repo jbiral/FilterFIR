@@ -13,7 +13,7 @@ private:
 	int k;
 
 public:
-	FIR(){
+	FilterFIR(){
 		k = 0;
 		for (int i=0; i<N; i++) {      
 			values[i] = 0;
@@ -24,7 +24,7 @@ public:
 		gain = 1.0;
 	}
 	
-	FIR(float *newCoefs) {
+	FilterFIR(float *newCoefs) {
 		k = 0;
 		for (int i=0; i<N; i++) {      
 			values[i] = 0;
@@ -39,14 +39,7 @@ public:
 	void setCoefficients(const int16_t *newCoefs) {
 		for (int i=0; i<N; i++) {      
 			coef[i] = newCoefs[i];
-		}
-
-		// Calculate the default gain
-		int32_t output = 0;
-		for (int i=0; i<N; i++) {
-			output += (int32_t) coef[i] * (int32_t) 1;
-		}
-		gain = (float)output / (float)(pow(2,15));                
+		}           
 	}
 	
 	int16_t process(int16_t input) {
@@ -61,8 +54,8 @@ public:
 		}
                 
 		// Shift by 15 bits to the right (16 bits signed) to rescale the output
-		// output = output >> 15;
-		// More precise (but slower)
+		output = output >> 15;
+		// More precise gain adjustment
 		output = (int16_t) (gain * (float) output);
                 
 		// Compute the modulo of a power of two to increase the speed
