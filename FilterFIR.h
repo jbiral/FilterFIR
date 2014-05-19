@@ -15,8 +15,7 @@ private:
 public:
 	FIR(){
 		k = 0;
-		for (int i=0; i<N; i++)
-		{      
+		for (int i=0; i<N; i++) {      
 			values[i] = 0;
 			coef[i] = 0;
 		}
@@ -27,8 +26,7 @@ public:
 	
 	FIR(float *newCoefs) {
 		k = 0;
-		for (int i=0; i<N; i++)
-		{      
+		for (int i=0; i<N; i++) {      
 			values[i] = 0;
 		}
 		setCoefficients(newCoefs);
@@ -39,15 +37,13 @@ public:
 	}
 	
 	void setCoefficients(const int16_t *newCoefs) {
-		for (int i=0; i<N; i++)
-		{      
+		for (int i=0; i<N; i++) {      
 			coef[i] = newCoefs[i];
 		}
 
 		// Calculate the default gain
 		int32_t output = 0;
-		for (int i=0; i<N; i++)
-		{
+		for (int i=0; i<N; i++) {
 			output += (int32_t) coef[i] * (int32_t) 1;
 		}
 		gain = (float)output / (float)(pow(2,15));                
@@ -60,8 +56,7 @@ public:
 		// Store the input of the routine (contents of the 'in' variable) in the array at the current pointer position
 		values[k] = input;
 
-		for (int i=0; i<N; i++)
-        {
+		for (int i=0; i<N; i++) {
 			output += (int32_t) coef[i] * (int32_t) values[(i + k) & (N - 1)];
 		}
                 
