@@ -51,6 +51,8 @@ public:
 
 		for (int i=0; i<N; i++) {
 			output += (int32_t) coef[i] * (int32_t) values[(i + k) & (N - 1)];
+			// If N is not a power of two, uncomment next line
+			// output += (int32_t) coef[i] * (int32_t) values[(i + k) % N];
 		}
                 
 		// Shift by 15 bits to the right (16 bits signed) to rescale the output

@@ -9,7 +9,7 @@ This small library implements a FIR filter by providing the array of coefficient
 Here's a simple example that shows how to use the library:
 
 ```cpp
-int N; // The number of taps of the filter
+int N = 4; // The number of taps of the filter (I suggest a power of two)
 const int16_t coeff[N] = { 1, 0, 0, 0 } // The coefficients of the filter
 
 // Create the filter object
